@@ -1,14 +1,16 @@
 import { useState, type SyntheticEvent } from 'react'
 import { emptyApplication, requiredFields } from '../constants/jobApplication'
+import { checkEmailAvailability } from '../utils/emailValidation'
 import type {
   JobApplication,
   JobApplicationErrors,
 } from '../types/jobApplication'
 
 export function useReactApplicationForm() {
-  const [formData, setFormData] = useState<JobApplication>(emptyApplication)
+  const [formData, setFormData] = useState<JobApplication>({ ...emptyApplication })
   const [errors, setErrors] = useState<JobApplicationErrors>({})
   const [submittedName, setSubmittedName] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const updateField = (
     field: keyof JobApplication,
@@ -19,12 +21,12 @@ export function useReactApplicationForm() {
   }
 
   const resetForm = () => {
-    setFormData(emptyApplication)
+    setFormData({ ...emptyApplication })
     setErrors({})
     setSubmittedName('')
   }
 
-  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const nextErrors: JobApplicationErrors = {}
@@ -35,7 +37,7 @@ export function useReactApplicationForm() {
       }
     })
 
-    if (!formData.email.includes('@')) {
+    if (formData.email && !formData.email.includes('@')) {
       nextErrors.email = 'Enter a valid email address'
     }
 
@@ -43,10 +45,24 @@ export function useReactApplicationForm() {
       nextErrors.terms = 'Please confirm before submitting'
     }
 
-    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors)
+      return
+    }
 
-    if (Object.keys(nextErrors).length === 0) {
+    setIsSubmitting(true)
+
+    try {
+      const isAvailable = await checkEmailAvailability(formData.email)
+
+      if (!isAvailable) {
+        setErrors({ email: 'This email is already registered' })
+        return
+      }
+
       setSubmittedName(formData.fullName)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -54,6 +70,7 @@ export function useReactApplicationForm() {
     errors,
     formData,
     handleSubmit,
+    isSubmitting,
     resetForm,
     submittedName,
     updateField,

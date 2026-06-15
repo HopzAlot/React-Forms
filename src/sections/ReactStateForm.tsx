@@ -9,6 +9,7 @@ export function ReactStateForm() {
     errors,
     formData,
     handleSubmit,
+    isSubmitting,
     resetForm,
     submittedName,
     updateField,
@@ -28,7 +29,7 @@ export function ReactStateForm() {
           errors={errors}
           onChange={updateField}
         />
-        <FormActions onReset={resetForm} />
+        <FormActions onReset={resetForm} isSubmitting={isSubmitting} />
       </Box>
     </FormSection>
   )

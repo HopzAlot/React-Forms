@@ -5,6 +5,7 @@ import { FormActions } from '../components/FormActions'
 import { FormSection } from '../components/FormSection'
 import { HookApplicationFields } from '../components/fields/HookApplicationFields'
 import { emptyApplication } from '../constants/jobApplication'
+import { checkEmailAvailability } from '../utils/emailValidation'
 import type { JobApplication } from '../types/jobApplication'
 
 export function ReactHookForm() {
@@ -14,14 +15,26 @@ export function ReactHookForm() {
     handleSubmit,
     register,
     reset,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm<JobApplication, unknown, JobApplication>({
     defaultValues: emptyApplication,
   })
 
   const resetForm = () => {
-    reset(emptyApplication)
+    reset({ ...emptyApplication })
     setSubmittedName('')
+  }
+
+  const onSubmit = async (data: JobApplication) => {
+    const isAvailable = await checkEmailAvailability(data.email)
+
+    if (!isAvailable) {
+      setError('email', { message: 'This email is already registered' })
+      return
+    }
+
+    setSubmittedName(data.fullName)
   }
 
   return (
@@ -35,7 +48,7 @@ export function ReactHookForm() {
       <Box
         component="form"
         noValidate
-        onSubmit={handleSubmit((data) => setSubmittedName(data.fullName))}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <HookApplicationFields
           control={control}
@@ -43,7 +56,7 @@ export function ReactHookForm() {
           register={register}
           useSimpleRules
         />
-        <FormActions onReset={resetForm} />
+        <FormActions onReset={resetForm} isSubmitting={isSubmitting} />
       </Box>
     </FormSection>
   )

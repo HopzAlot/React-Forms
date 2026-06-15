@@ -33,3 +33,6 @@ export const requiredFields: Array<keyof JobApplication> = [
   'startDate',
   'coverLetter',
 ]
+
+// Simulated "taken" emails for demo purposes
+export const takenEmails = ['test@example.com', 'admin@example.com', 'user@test.com']
