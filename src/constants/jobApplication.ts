@@ -35,4 +35,4 @@ export const requiredFields: Array<keyof JobApplication> = [
 ]
 
 // Simulated "taken" emails for demo purposes
-export const takenEmails = ['test@example.com', 'admin@example.com', 'user@test.com']
+export const takenEmails = ['test@gmail.com', 'admin@example.com', 'user@test.com']

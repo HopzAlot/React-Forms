@@ -10,6 +10,7 @@ import type { JobApplication } from '../types/jobApplication'
 
 export function ReactHookForm() {
   const [submittedName, setSubmittedName] = useState('')
+  const [formKey, setFormKey] = useState(0)
   const {
     control,
     handleSubmit,
@@ -24,6 +25,7 @@ export function ReactHookForm() {
   const resetForm = () => {
     reset({ ...emptyApplication })
     setSubmittedName('')
+    setFormKey((k) => k + 1)
   }
 
   const onSubmit = async (data: JobApplication) => {
@@ -46,6 +48,7 @@ export function ReactHookForm() {
         <Alert severity="success">Application saved for {submittedName}.</Alert>
       )}
       <Box
+        key={formKey}
         component="form"
         noValidate
         onSubmit={handleSubmit(onSubmit)}

@@ -12,6 +12,7 @@ import { applicationSchema } from '../validation/applicationSchema'
 
 export function ZodValidationForm() {
   const [submittedName, setSubmittedName] = useState('')
+  const [formKey, setFormKey] = useState(0)
   const {
     control,
     handleSubmit,
@@ -27,6 +28,7 @@ export function ZodValidationForm() {
   const resetForm = () => {
     reset({ ...emptyApplication })
     setSubmittedName('')
+    setFormKey((k) => k + 1)
   }
 
   const onSubmit = async (data: JobApplication) => {
@@ -49,6 +51,7 @@ export function ZodValidationForm() {
         <Alert severity="success">Application saved for {submittedName}.</Alert>
       )}
       <Box
+        key={formKey}
         component="form"
         noValidate
         onSubmit={handleSubmit(onSubmit)}
