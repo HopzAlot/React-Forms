@@ -31,16 +31,20 @@ export function useReactApplicationForm() {
 
     const nextErrors: JobApplicationErrors = {}
 
+    // Validate string fields
     requiredFields.forEach((field) => {
-      if (!String(formData[field]).trim()) {
+      const value = formData[field]
+      if (typeof value === 'string' && !value.trim()) {
         nextErrors[field] = 'This field is required'
       }
     })
 
+    // Validate email format
     if (formData.email && !formData.email.includes('@')) {
       nextErrors.email = 'Enter a valid email address'
     }
 
+    // Validate terms checkbox explicitly (boolean, not a string field)
     if (!formData.terms) {
       nextErrors.terms = 'Please confirm before submitting'
     }
@@ -60,6 +64,7 @@ export function useReactApplicationForm() {
         return
       }
 
+      console.log('Form submitted:', formData)
       setSubmittedName(formData.fullName)
     } finally {
       setIsSubmitting(false)

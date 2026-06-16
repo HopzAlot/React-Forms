@@ -24,7 +24,7 @@ import {
 import type { JobApplication } from '../../types/jobApplication'
 
 type HookApplicationFieldsProps = {
-  control: Control<JobApplication, unknown, JobApplication>
+  control: Control<JobApplication>
   errors: FieldErrors<JobApplication>
   register: UseFormRegister<JobApplication>
   useSimpleRules?: boolean
@@ -234,9 +234,12 @@ function TextInput<TName extends TextFieldName>({
   slotProps,
   type,
 }: TextInputProps<TName>) {
+  const { ref, ...rest } = register(name, rules)
+
   return (
     <TextField
-      {...register(name, rules)}
+      {...rest}
+      inputRef={ref}
       className={className}
       label={label}
       type={type}

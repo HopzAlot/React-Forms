@@ -12,34 +12,43 @@ import { applicationSchema } from '../validation/applicationSchema'
 
 export function ZodValidationForm() {
   const [submittedName, setSubmittedName] = useState('')
-  const [formKey, setFormKey] = useState(0)
+  const [emailTakenError, setEmailTakenError] = useState('')
+
   const {
     control,
     handleSubmit,
     register,
     reset,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<JobApplication, unknown, JobApplication>({
+    formState,
+  } = useForm<JobApplication>({
     defaultValues: { ...emptyApplication },
     resolver: zodResolver(applicationSchema),
   })
 
+  const { errors, isSubmitting } = formState
+
   const resetForm = () => {
     reset({ ...emptyApplication })
     setSubmittedName('')
-    setFormKey((k) => k + 1)
+    setEmailTakenError('')
   }
 
   const onSubmit = async (data: JobApplication) => {
+    setEmailTakenError('')
     const isAvailable = await checkEmailAvailability(data.email)
 
     if (!isAvailable) {
-      setError('email', { message: 'This email is already registered' })
+      setEmailTakenError('This email is already registered')
       return
     }
 
+    console.log('Form submitted:', data)
     setSubmittedName(data.fullName)
+  }
+
+  const mergedErrors = {
+    ...errors,
+    ...(emailTakenError ? { email: { message: emailTakenError, type: 'manual' as const } } : {}),
   }
 
   return (
@@ -50,15 +59,10 @@ export function ZodValidationForm() {
       {submittedName && (
         <Alert severity="success">Application saved for {submittedName}.</Alert>
       )}
-      <Box
-        key={formKey}
-        component="form"
-        noValidate
-        onSubmit={handleSubmit(onSubmit)}
-      >
+      <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
         <HookApplicationFields
           control={control}
-          errors={errors}
+          errors={mergedErrors}
           register={register}
         />
         <FormActions onReset={resetForm} isSubmitting={isSubmitting} />
